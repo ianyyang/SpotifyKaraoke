@@ -11,6 +11,12 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Link from '@material-ui/core/Link';
+import LibraryBooksRoundedIcon from '@material-ui/icons/LibraryBooksRounded';
+import KeyboardBackspaceRoundedIcon from '@material-ui/icons/KeyboardBackspaceRounded';
+import PlayCircleOutlineRoundedIcon from '@material-ui/icons/PlayCircleOutlineRounded';
+
+// components
+import Lyrics from './lyrics';
 
 // materialUI
 const styles = theme => ({
@@ -20,17 +26,19 @@ const styles = theme => ({
 });
 
 class SpotifyPlaylist extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             render: '',
             playlists: [],
-            playlists_details: []
+            playlists_details: [],
+            user_device: ''
         }
     }
 
     componentWillMount() {
         this.getUserPlaylists()
+        this.getUserDevices()
     }
 
     // get current user's playlist
@@ -41,6 +49,7 @@ class SpotifyPlaylist extends Component {
             var getUserPlaylists_json = response.items;
             var getUserPlaylists_arr = [];
 
+            // iterate through user playlists, fetch general playlist information
             Object.keys(getUserPlaylists_json).forEach((key) => {
                 getUserPlaylists_arr.push({
                     playlist_id: getUserPlaylists_json[key].id,
@@ -59,29 +68,72 @@ class SpotifyPlaylist extends Component {
         })
     }
 
+    // get users available devices
+    getUserDevices() {
+        this.props.spotifyWebApi.getMyDevices().then((response) => {
+            var getUserDevices_json = response.devices;
+            var activeUserDevice = '';
+
+            // iterate through devices, find active device
+            Object.keys(getUserDevices_json).forEach((key) => {
+                if (getUserDevices_json[key].is_active === "true") {
+                    activeUserDevice = getUserDevices_json[key].id
+                }
+            })
+
+            // if no active devices found, use the first one (or do nothing if there are no devices)
+            if (activeUserDevice === "") {
+                if (getUserDevices_json.length > 0) {
+                    activeUserDevice = getUserDevices_json[0].id
+                }
+            }
+
+            this.setState((state) => ({
+                user_device: activeUserDevice
+            }))
+        })
+    }
+
     // get playlist info
     getPlaylistDetails(playlistID) {
         // track: id, uri, name
         // artist: id, uri, name
         this.props.spotifyWebApi.getPlaylist(playlistID).then((response) => {
-            var getPlaylist_json = response.tracks.items;
-            var getPlaylist_arr = [];
+            var getPlaylistDetails_json = response.tracks.items;
+            var getPlaylistDetails_arr = [];
 
-            Object.keys(getPlaylist_json).forEach((key) => {
-                getPlaylist_arr.push({
-                    track_id: getPlaylist_json[key].track.id,
-                    track_uri: getPlaylist_json[key].track.uri,
-                    track_name: getPlaylist_json[key].track.name,
-                    artist_id: getPlaylist_json[key].track.artists[0].id,
-                    artist_uri: getPlaylist_json[key].track.artists[0].uri,
-                    artist_name: getPlaylist_json[key].track.artists[0].name,
+            // iterate through each playlist, fetch playlist details (tracks and artists)
+            Object.keys(getPlaylistDetails_json).forEach((key) => {
+                getPlaylistDetails_arr.push({
+                    track_id: getPlaylistDetails_json[key].track.id,
+                    track_uri: getPlaylistDetails_json[key].track.uri,
+                    track_name: getPlaylistDetails_json[key].track.name,
+                    artist_id: getPlaylistDetails_json[key].track.artists[0].id,
+                    artist_uri: getPlaylistDetails_json[key].track.artists[0].uri,
+                    artist_name: getPlaylistDetails_json[key].track.artists[0].name,
                 })
             })
 
             this.setState((state) => ({
-                playlists_details: getPlaylist_arr
+                playlists_details: getPlaylistDetails_arr
             }))
         })
+    }
+
+    // context: user's playlist screen
+    // user goes to lyrics screen
+    handlePlaylistBackClick() {
+        this.setState((state) => ({
+            render: 'lyrics'
+        }))
+    }
+
+    // context: user's playlist screen
+    // set playback to the given playlist
+    handlePlayPlaylistClick(playlistURI) {
+        if (this.state.user_device !== "") {
+            this.props.spotifyWebApi.play({ device_id: this.state.user_device, context_uri: playlistURI })
+        }
     }
 
     // context: user's playlist screen
@@ -103,7 +155,10 @@ class SpotifyPlaylist extends Component {
                 <Table className={classes.table} size="small" aria-label="a dense table">
                     <TableHead>
                         <TableRow>
-                            <TableCell align="center">Playlist Name</TableCell>
+                            <TableCell align="right" width="10em">
+                                <Link onClick={() => this.handlePlaylistBackClick()}><LibraryBooksRoundedIcon color="action" /></Link>
+                            </TableCell>
+                            <TableCell align="left">Playlist Name</TableCell>
                             <TableCell align="center">Track Count</TableCell>
                             <TableCell align="center">Playlist Owner</TableCell>
                         </TableRow>
@@ -111,9 +166,18 @@ class SpotifyPlaylist extends Component {
                     <TableBody>
                         {this.state.playlists.map((playlist) => (
                             <TableRow key={playlist.playlist_name}>
-                                <TableCell align="center"><Link onClick={() => this.handlePlaylistClick(playlist.playlist_id)}>{playlist.playlist_name}</Link></TableCell>
-                                <TableCell align="center">{playlist.playlist_count}</TableCell>
-                                <TableCell align="center"><Link href={playlist.owner_uri}>{playlist.owner_name} ({playlist.owner_id})</Link></TableCell>
+                                <TableCell align="right" width="10em">
+                                    <Link onClick={() => this.handlePlayPlaylistClick(playlist.playlist_uri)}><PlayCircleOutlineRoundedIcon color="action" /></Link>
+                                </TableCell>
+                                <TableCell align="left">
+                                    <Link onClick={() => this.handlePlaylistClick(playlist.playlist_id)}>{playlist.playlist_name}</Link>
+                                </TableCell>
+                                <TableCell align="center">
+                                    {playlist.playlist_count}
+                                </TableCell>
+                                <TableCell align="center">
+                                    <Link href={playlist.owner_uri}>{playlist.owner_name} ({playlist.owner_id})</Link>
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -124,16 +188,18 @@ class SpotifyPlaylist extends Component {
 
     // context: playlist details screen
     // user goes back to the user's playlists screen
-    handleBackClick() {
+    handlePlaylistDetailsBackClick() {
         this.setState((state) => ({
             render: ''
         }))
     }
 
     // context: playlist details screen
-    // user confirmed this playlist to be converted
-    handleConfirmClick() {
-        console.log("Save playlist")
+    // set playback to the given song
+    handlePlayTrackClick(trackURI) {
+        if (this.state.user_device !== "") {
+            this.props.spotifyWebApi.play({ device_id: this.state.user_device, uris: [trackURI] })
+        }
     }
 
     // render the playlist details (tracks and artists) of a selected playlist
@@ -142,20 +208,28 @@ class SpotifyPlaylist extends Component {
 
         return (
             <TableContainer component={Paper}>
-                <Table className={classes.table} size="small" aria-label="a dense table" style={{tableLayout: 'auto'}}>
+                <Table className={classes.table} size="small" aria-label="a dense table" style={{ tableLayout: 'auto' }}>
                     <TableHead>
                         <TableRow>
-                            <TableCell align="center"><Link onClick={() => this.handleBackClick()}>Back</Link> | <Link onClick={() => this.handleConfirmClick()}>Confirm</Link></TableCell>
-                            <TableCell align="center">Track Title</TableCell>
+                            <TableCell align="right" width="10em">
+                                <Link onClick={() => this.handlePlaylistDetailsBackClick()}><KeyboardBackspaceRoundedIcon color="action" /></Link>
+                            </TableCell>
+                            <TableCell align="left">Track Title</TableCell>
                             <TableCell align="center">Track Artist</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {this.state.playlists_details.map((playlist_detail) => (
                             <TableRow>
-                                <TableCell></TableCell>
-                                <TableCell align="center"><Link href={playlist_detail.track_uri}>{playlist_detail.track_name}</Link></TableCell>
-                                <TableCell align="center"><Link href={playlist_detail.artist_uri}>{playlist_detail.artist_name}</Link></TableCell>
+                                <TableCell align="right" width="10em">
+                                    <Link onClick={() => this.handlePlayTrackClick(playlist_detail.track_uri)}><PlayCircleOutlineRoundedIcon color="action" /></Link>
+                                </TableCell>
+                                <TableCell align="left">
+                                    <Link href={playlist_detail.track_uri}>{playlist_detail.track_name}</Link>
+                                </TableCell>
+                                <TableCell align="center">
+                                    <Link href={playlist_detail.artist_uri}>{playlist_detail.artist_name}</Link>
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -176,6 +250,7 @@ class SpotifyPlaylist extends Component {
                     {this.renderPlaylist()}
                 </div>
             )
+            case 'lyrics': return <Lyrics app={this.props} playlist={this.state} />
         }
     }
 }
