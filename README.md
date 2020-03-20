@@ -11,8 +11,8 @@ Check it out here: https://ianyyang.github.io/Spotify-Karaoke/
 
 **Technologies Used: AWS, React.js, HTML, CSS, Spotify API, Genius API**
 
-SpotifyKaraoke works by first making API calls to the *Spotify RESTful API*. It consumes the fetched JSON data to display your currently playing music as well as access your playlist library. After music playback has been established, it makes API calls to the *Genius RESTful API*, working similarly.
+SpotifyKaraoke works by first making API calls to the **Spotify RESTful API**. It consumes the fetched JSON data to display your currently playing music as well as access your playlist library. After music playback has been established, it makes API calls to the **Genius RESTful API**, working similarly.
 
 However, since there is no direct API endpoint for song lyrics, JSON data that provides the full [Genius.com](https://genius.com/) URL for the currently playing song is fetched instead. [Node-fetch](https://github.com/node-fetch/node-fetch) is used to scrape the HTML data from the Genius URL, and [cheerio](https://github.com/cheeriojs/cheerio) is used to parse the data for the lyrics.
 
-*React.js*, *HTML*, and *CSS* bring it all together to build a front-end UI that the user interacts with to navigate around the SpotifyKaraoke app. *AWS S3* is used to host a the React web application live.
+**React.js**, **HTML**, and **CSS** bring it all together to build a front-end UI that the user interacts with to navigate around the SpotifyKaraoke app. **AWS S3** is used to host a the React web application live.
