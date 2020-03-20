@@ -9,7 +9,7 @@ Check it out here: https://ianyyang.github.io/Spotify-Karaoke/
 
 ## The Technical Details
 
-**Technologies Used: AWS, React.js, HTML, CSS, Spotify API, Genius API**
+**Technologies Used: React.js, HTML, CSS, Spotify API, Genius API, AWS**
 
 SpotifyKaraoke works by first making API calls to the **Spotify RESTful API**. It consumes the fetched JSON data to display your currently playing music as well as access your playlist library. After music playback has been established, it makes API calls to the **Genius RESTful API**, working similarly.
 
