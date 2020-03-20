@@ -5,6 +5,8 @@ SpotifyKaraoke is a web application powered by React.js that is meant to be run 
 
 Once set up, SpotifyKaraoke will generate lyrics to whatever song you are playing in real-time, allowing you to transform a jam session to a mini karaoke session in your own home!
 
+Check it out here: https://ianyyang.github.io/Spotify-Karaoke/
+
 ## The Technical Details
 
 **Technologies Used: React.js, HTML, CSS, Spotify API, Genius API**
