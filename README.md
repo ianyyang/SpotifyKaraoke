@@ -34,3 +34,5 @@ npm run-script karaoke
 In the case that your browser (most likely Chrome or Safari) is not showcasing any lyrics, there's a good chance that it is being blocked by CORS (cross-origin resource sharing) policy. Bypassing it is essential to be able to pull lyrical data from the Genius website.
 
 You can learn how to disable this policy for [Chrome](https://stackoverflow.com/questions/3102819/disable-same-origin-policy-in-chrome) or [Safari](https://stackoverflow.com/questions/4556429/disabling-same-origin-policy-in-safari).
+
+#### 4. Sing your heart out!
