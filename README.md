@@ -1,4 +1,4 @@
-## What is SpotifyKaraoke?
+## What is SpotifyKaraoke? 🎤
 In the good old days of Spotify, lyrics would show up in real-time while listening to a song. Inexplicably, they removed this feature. Now we're here to *bring it back*.
 
 SpotifyKaraoke is a web application powered by React.js that is meant to be run alongside your daily Spotify jam sessions. With its built-in web player, it gives you the option of kickstarting the music off your way. Music already playing? That works too! SpotifyKaraoke will automatically follow along with whatever enticing melodies you already have blasting in your room.
