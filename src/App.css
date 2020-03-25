@@ -1,3 +1,7 @@
 .App {
-  text-align: center;
+    text-align: center;
+}
+
+.App Button {
+    margin-top: 17.5%;
 }

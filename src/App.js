@@ -2,6 +2,9 @@
 import React, { Component } from 'react';
 import Spotify from 'spotify-web-api-js';
 
+// materialUI
+import Button from '@material-ui/core/Button';
+
 // components
 import SpotifyPlaylist from './components/spotifyplaylist';
 
@@ -59,7 +62,7 @@ class App extends Component {
         switch (this.state.render) {
             default: return (
                 <div className="App">
-                    <button type="button" onClick={() => this.handleSpotifyLoginClick()}>Spotify Login</button>
+                    <Button className="LoginButton" variant="contained" onClick={() => this.handleSpotifyLoginClick()}>Spotify Login</Button>
                 </div>
             )
             case 'login': window.location.assign('http://localhost:8888/login')

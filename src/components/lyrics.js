@@ -28,7 +28,7 @@ const styles = theme => ({
 });
 
 // genius API
-const geniusApi = 'B96-mmg4IWvQOW7pvE8ErZqLSt1jHlZQaZ1Tbp9W-p8RGhHrH60Mej6xWi0ksTkZ';
+const geniusApi = 'u45YWR610PNuGXc3J0eGfQ05XPAmfKcvvbxKtCsaWpQaNLN7sdoNBcRN4I_cTTG-';
 const genius = new Genius(geniusApi);
 
 // node-fetch
@@ -51,13 +51,14 @@ class Lyrics extends Component {
         }
 
         this.getCurrentlyPlayingThrottled = throttle(this.getCurrentlyPlaying, 1000)
-        this.getLyricsThrottled = throttle(this.getLyrics, 250)
+        this.getLyricsThrottled = throttle(this.getLyrics, 1000)
     }
 
     // force a refresh for the currently playing song and its lyrics
     forceRefresh() {
         this.getCurrentlyPlaying()
-        this.getLyrics()
+        this.getSongUrl()
+        this.getHtmlFromUrl()
     }
 
     // get currently playing song
@@ -108,6 +109,7 @@ class Lyrics extends Component {
 
     // get genius url for the currently playing song
     getSongUrl() {
+        console.log("Getting song URL")
         var searchTerms = this.state.song_title + ' by ' + this.state.artist_name
 
         genius.search(searchTerms).then((response) => {
@@ -131,6 +133,7 @@ class Lyrics extends Component {
 
     // download html from url
     getHtmlFromUrl() {
+        console.log("Downloading HTML from song URL")
         return fetch(this.state.genius_url, { method: 'GET', })
             .then(response => response.text())
             .then(body => this.parseSongHtml(body))
@@ -138,6 +141,7 @@ class Lyrics extends Component {
 
     // parse song's html
     parseSongHtml(htmlText) {
+        console.log("Parsing HTML from song URL")
         const $ = cheerio.load(htmlText)
         const lyrics = $('.lyrics').text()
 
